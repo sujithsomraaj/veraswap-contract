@@ -83,7 +83,7 @@ contract Presale{
     function Presale(address _tetherContract, address _tokenContract) public {
         Tether = TetherToken(_tetherContract);
         Token = ERC(_tokenContract);
-        ref = AggregatorV3Interface(0x9326BFA02ADD2366b30bacB125260Af641031331);
+        ref = AggregatorV3Interface(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419);
         admin = msg.sender;
     }
 
@@ -189,6 +189,16 @@ contract Presale{
     
     function getAllowance() public view returns(uint256){
         return Tether.allowance(msg.sender,address(this));
+    }
+
+    function updateAdmin(address _user) public isAdmin returns(bool){
+        admin = _user;
+        return true;
+    }
+
+    function updateRef(address _newRef) public isAdmin returns(bool){
+        ref = AggregatorV3Interface(_newRef);
+        return true;
     }
 
 }
