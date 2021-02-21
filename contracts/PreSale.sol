@@ -1,6 +1,33 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity <=0.7.5;
-import "./Usdt.sol";
+pragma solidity <=0.8.1;
+
+library SafeMath {
+    function mul(uint256 a, uint256 b) internal pure returns (uint256) {
+        if (a == 0) {
+        }
+        uint256 c = a * b;
+        assert(c / a == b);
+        return c;
+    }
+
+    function div(uint256 a, uint256 b) internal pure returns (uint256) {
+        // assert(b > 0); // Solidity automatically throws when dividing by 0
+        uint256 c = a / b;
+        // assert(a == b * c + a % b); // There is no case in which this doesn't hold
+        return c;
+    }
+
+    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
+        assert(b <= a);
+        return a - b;
+    }
+
+    function add(uint256 a, uint256 b) internal pure returns (uint256) {
+        uint256 c = a + b;
+        assert(c >= a);
+        return c;
+    }
+}
 
 interface ERC {
     event Approval(address indexed owner, address indexed spender, uint value);
@@ -49,7 +76,7 @@ interface AggregatorV3Interface {
 
 contract Presale{
 
-    TetherToken public Tether;
+    ERC public Tether;
     ERC public Token;
     
     AggregatorV3Interface internal ref;
@@ -80,10 +107,10 @@ contract Presale{
     mapping(int8 => uint256) public sold;
     mapping(int8 => uint256) public saleCap;
 
-    function Presale(address _tetherContract, address _tokenContract) public {
-        Tether = TetherToken(_tetherContract);
+    function Presale(address _busdContract, address _tokenContract) public {
+        Tether = ERC(_busdContract);
         Token = ERC(_tokenContract);
-        ref = AggregatorV3Interface(0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419);
+        ref = AggregatorV3Interface(0x0567F2323251f0Aab15c8dFb1967E4e8A7D42aeE);
         admin = msg.sender;
     }
 
@@ -104,10 +131,10 @@ contract Presale{
     */
     
     function resolverEther(uint256 _amountEther) public view returns(uint256){
-        uint256 ethPrice = uint256(fetchEthPrice());
-                ethPrice = SafeMath.mul(_amountEther,ethPrice); // 18 * 8
-                ethPrice = SafeMath.div(ethPrice,10**2);        // 26 / 2
-        uint256 _tokenAmount = SafeMath.div(ethPrice,tokenPrice[salePhase]); // 24 / 6
+        uint256 bnbPrice = uint256(fetchBnbPrice());
+                bnbPrice = SafeMath.mul(_amountEther,bnbPrice); // 18 * 8
+                bnbPrice = SafeMath.div(bnbPrice,10**2);        // 26 / 2
+        uint256 _tokenAmount = SafeMath.div(bnbPrice,tokenPrice[salePhase]); // 24 / 6
         return _tokenAmount;
     }
 
@@ -134,7 +161,7 @@ contract Presale{
      */
     
     function resolverTether(uint256 _amountTether) private view returns(uint256){
-        uint256 _tempAmount = SafeMath.mul(_amountTether,10**18);
+        uint256 _tempAmount = SafeMath.mul(_amountTether,10**6);
         uint256 _tokenAmount = SafeMath.div(_tempAmount,tokenPrice[salePhase]);
         return _tokenAmount;
     }
@@ -157,7 +184,7 @@ contract Presale{
         );
     }
 
-    function fetchEthPrice() public view returns (int) {
+    function fetchBnbPrice() public view returns (int) {
         (
             uint80 roundID, 
             int price,
