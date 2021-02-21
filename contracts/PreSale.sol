@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity <=0.8.1;
+pragma solidity <=0.7.5;
 
 library SafeMath {
     function mul(uint256 a, uint256 b) internal pure returns (uint256) {
@@ -107,7 +107,7 @@ contract Presale{
     mapping(int8 => uint256) public sold;
     mapping(int8 => uint256) public saleCap;
 
-    function Presale(address _busdContract, address _tokenContract) public {
+    constructor(address _busdContract, address _tokenContract) public {
         Tether = ERC(_busdContract);
         Token = ERC(_tokenContract);
         ref = AggregatorV3Interface(0x0567F2323251f0Aab15c8dFb1967E4e8A7D42aeE);
@@ -121,7 +121,7 @@ contract Presale{
                         h.paymentMethod.push(2);
                         h.amount.push(_amountToken);
         Token.transfer(msg.sender,_amountToken);
-        admin.transfer(msg.value);
+        payable(admin).transfer(msg.value);
         return true;
     }
     
