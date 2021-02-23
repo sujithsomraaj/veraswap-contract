@@ -63,6 +63,7 @@ contract Staking is Math {
 
     mapping(address => mapping(address => User)) public users;
     mapping(address => uint256) public rFactor; // 18 decimal (reward % per second)
+    mapping(address => uint256) public decimals;
     mapping(address => uint256) public lockTime;
     
     function stake(uint256 _stakeAmount,address _contractAddress) public returns(bool){
@@ -81,9 +82,12 @@ contract Staking is Math {
         vSmartContract = ERC(veraswap);
         User storage u = users[msg.sender][_contractAddress];
         require(Math.add(u.time,lockTime[_contractAddress]) < block.timestamp,"Not Matured Yet");
+        uint256 mFactor = Math.mul(10,Math.sub(18,decimals[_contractAddress]));
         uint256 interest = Math.sub(block.timestamp,u.time);
+                interest = Math.mul(interest,mFactor);
                 interest = Math.mul(u.currentStake,interest);
                 interest = Math.mul(interest,rFactor[_contractAddress]);
+                interest = Math.div(interest,10 ** 18);
         u.rewardsClaimed = Math.add(u.rewardsClaimed,interest);
         smartContract.transfer(msg.sender,u.currentStake);
         vSmartContract.transfer(msg.sender,interest);
@@ -94,9 +98,12 @@ contract Staking is Math {
     function fetchUnclaimed(address _user,address _contractAddress) public view returns(uint256 claimableAmount){
         User storage u = users[_user][_contractAddress];
         require(u.currentStake > 0,"No Stake");
+        uint256 mFactor = Math.mul(10,Math.sub(18,decimals[_contractAddress]));
         uint256 interest = Math.sub(block.timestamp,u.time);
+                interest = Math.mul(interest,mFactor);
                 interest = Math.mul(u.currentStake,interest);
                 interest = Math.mul(interest,rFactor[_contractAddress]);
+                interest = Math.div(interest,10 ** 18);
         return interest;
     }
     
@@ -104,6 +111,11 @@ contract Staking is Math {
         uint256 rewardFactor = Math.mul(_rFactor,10 ** 12);
                 rewardFactor = Math.div(rewardFactor,3154);
         rFactor[_contractAddress] = rewardFactor;
+        return true;
+    }
+    
+    function updateDecimals(address _contractAddress, uint256 _decimal) public isAdmin returns(bool){
+        decimals[_contractAddress] = _decimal;
         return true;
     }
     
