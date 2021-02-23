@@ -84,8 +84,6 @@ contract Staking is Math {
         uint256 interest = Math.sub(block.timestamp,u.time);
                 interest = Math.mul(u.currentStake,interest);
                 interest = Math.mul(interest,rFactor[_contractAddress]);
-                interest = Math.div(interest,3154);
-                interest = Math.div(interest,10**24);
         u.rewardsClaimed = Math.add(u.rewardsClaimed,interest);
         smartContract.transfer(msg.sender,u.currentStake);
         vSmartContract.transfer(msg.sender,interest);
@@ -99,13 +97,13 @@ contract Staking is Math {
         uint256 interest = Math.sub(block.timestamp,u.time);
                 interest = Math.mul(u.currentStake,interest);
                 interest = Math.mul(interest,rFactor[_contractAddress]);
-                interest = Math.div(interest,3154);
-                interest = Math.div(interest,10**24);
         return interest;
     }
     
     function updateReward(address _contractAddress,uint256 _rFactor) public isAdmin returns(bool){
-        rFactor[_contractAddress] = _rFactor;
+        uint256 rewardFactor = Math.mul(_rFactor,10 ** 12);
+                rewardFactor = Math.div(rewardFactor,3154);
+        rFactor[_contractAddress] = rewardFactor;
         return true;
     }
     
