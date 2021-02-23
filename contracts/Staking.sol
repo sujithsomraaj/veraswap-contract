@@ -59,6 +59,7 @@ contract Staking is Math {
         uint256 currentStake;
         uint256 rewardsClaimed;
         uint256 time;
+        uint256 rFactor;
     }
 
     mapping(address => mapping(address => User)) public users;
@@ -73,6 +74,7 @@ contract Staking is Math {
         require(u.currentStake == 0,"Already Staked");
         u.currentStake = _stakeAmount;
         u.time = block.timestamp;
+        u.rFactor = rFactor[_contractAddress];
         smartContract.transferFrom(msg.sender,address(this),_stakeAmount);
         return true;
     }
@@ -86,7 +88,7 @@ contract Staking is Math {
         uint256 interest = Math.sub(block.timestamp,u.time);
                 interest = Math.mul(interest,mFactor);
                 interest = Math.mul(u.currentStake,interest);
-                interest = Math.mul(interest,rFactor[_contractAddress]);
+                interest = Math.mul(interest,u.rFactor);
                 interest = Math.div(interest,10 ** 18);
         u.rewardsClaimed = Math.add(u.rewardsClaimed,interest);
         smartContract.transfer(msg.sender,u.currentStake);
@@ -102,7 +104,7 @@ contract Staking is Math {
         uint256 interest = Math.sub(block.timestamp,u.time);
                 interest = Math.mul(interest,mFactor);
                 interest = Math.mul(u.currentStake,interest);
-                interest = Math.mul(interest,rFactor[_contractAddress]);
+                interest = Math.mul(interest,u.rFactor);
                 interest = Math.div(interest,10 ** 18);
         return interest;
     }
