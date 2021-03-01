@@ -1,4 +1,7 @@
-// SPDX-License-Identifier: UNLICENSED
+/**
+ *Submitted for verification at BscScan.com on 2021-02-23
+*/
+
 pragma solidity <=0.8.1;
 
 interface ERC {
@@ -100,7 +103,7 @@ contract Staking is Math {
     function fetchUnclaimed(address _user,address _contractAddress) public view returns(uint256 claimableAmount){
         User storage u = users[_user][_contractAddress];
         require(u.currentStake > 0,"No Stake");
-        uint256 mFactor = Math.mul(10,Math.sub(18,decimals[_contractAddress]));
+        uint256 mFactor = 10 ** Math.sub(18,decimals[_contractAddress]);
         uint256 interest = Math.sub(block.timestamp,u.time);
                 interest = Math.mul(interest,mFactor);
                 interest = Math.mul(u.currentStake,interest);
@@ -110,7 +113,7 @@ contract Staking is Math {
     }
     
     function updateReward(address _contractAddress,uint256 _rFactor) public isAdmin returns(bool){
-        uint256 rewardFactor = Math.mul(_rFactor,10 ** 12);
+        uint256 rewardFactor = Math.mul(_rFactor,10 ** 9);
                 rewardFactor = Math.div(rewardFactor,3154);
         rFactor[_contractAddress] = rewardFactor;
         return true;
