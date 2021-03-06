@@ -87,7 +87,7 @@ contract Staking is Math {
         vSmartContract = ERC(veraswap);
         User storage u = users[msg.sender][_contractAddress];
         require(Math.add(u.time,lockTime[_contractAddress]) < block.timestamp,"Not Matured Yet");
-        uint256 mFactor = Math.mul(10,Math.sub(18,decimals[_contractAddress]));
+        uint256 mFactor = 10 ** Math.sub(18,decimals[_contractAddress]);
         uint256 interest = Math.sub(block.timestamp,u.time);
                 interest = Math.mul(interest,mFactor);
                 interest = Math.mul(u.currentStake,interest);
