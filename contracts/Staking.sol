@@ -139,4 +139,8 @@ contract Staking is Math {
         return true;
     }
     
+    function fetchCurrentTime() public view returns(uint256){
+        return block.timestamp;
+    }
+    
 }
